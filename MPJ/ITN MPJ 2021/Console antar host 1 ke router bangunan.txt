@@ -1,0 +1,72 @@
+Tahap 1
+
+en 					 //untuk memasuki mode user
+conf terminal 				 //masuk ketingkat lebih tinggi(global)
+hostname Bangunan 			 // menganti nama router dengan bangunan
+enable secret class12345  		 //menentukan pass buat mode privileged atau user
+service password-encryption 		 //mengubah password agar tidak dapat dibaca untuk mode user 
+banner motd $ini Router$  		 //memberikan sebuah identitas,keterangan,pada saat awal masuk
+security passwords min-length 10	 //mengkonfirmasikan 10 karakter kata sandi pada mode user 
+login block-for 120 attempts 2 within 30 //Perintah ini akan MEMBLOKIR semua koneksi ke Router Bangunan selama 120 detik 
+					 //jika password dimasukkan secara SALAH 2 kali DALAM rentang waktu 30 detik.
+no ip domain-lookup 			 //digunakan untuk mencegah router mencoba menyelesaikan perintah yang ditempelkan 
+		    			 //secara tidak benar di cli dengan mengirimkan kueri DNS
+ip domain-name ITExamAnswers.net 	 //untuk melengkapi nama host yang tidak memenuhi syarat. 
+crypto key generate rsa			 //menempatkan pasangan kunci host RSA di memori flash dan mengaktifkan SSH pada perangkat, jika belum diaktifkan. 
+1024					 //Parameter opsional menentukan ukuran modulus pasangan kunci RSA, dalam bit 1024.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+tahap 2
+
+line console 0 				 //menghubungkan router konsol menengah.jika hanya ada satu port konsole maka pilihlah console 0
+password cisco12345			 //memberikan password pada line console
+login 					 //Mengaktifkan otentikasi untuk koneksi terminal virtual ke router.
+logging synchronous			 //Tindakan ini mencegah pesan yang tidak diminta dan keluaran debug diselingi dengan keluaran dan petunjuk perangkat lunak yang diminta.
+exec-timeout 60				 //adalah jumlah waktu dari konsol atau sesi telnet ke router yang memungkinkan lalu lintas oleh router. Setelah waktu tercapai itu akan memutuskan koneksi.
+exit
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+Tahap 3
+
+line vty 0 4				 //menghubungkan router ke telnet
+password cisco12345
+transport input ssh			 //maka sistem akan menerima akses jarak jauh secara default melalui telnet, tetapi jika SSH diaktifkan maka sistem akan menerima SSH.
+login local
+logging synchronous
+exec-timeout 60
+exit
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+tahap 4
+
+line aux 0				 //yang digunakan hanya untuk mengontrol koneksi Telnet AUX masuk.
+password cisco12345
+login
+logging synchronous
+exec-timeout 60
+exit
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+tahap 5
+
+ip ssh version 2					//adalah metode untuk login jarak jauh yang aman dari satu perangkat ke perangkat lainnya. SSH menyediakan saluran aman melalui jaringan tidak aman dalam arsitektur klien-server, menghubungkan aplikasi klien SSH dengan server SSH.
+ip ssh time-out 120					//adalah jumlah waktu dari ssh atau sesi login jarak jauh ke router yang memungkinkan lalu lintas oleh router. Setelah waktu tercapai itu akan memutuskan koneksi.
+username netadmin privilege 15 secret Cisco_CCNA7	//mengatur username netadmin dengan privilege 15 dengan pass Cisco_CCNA7
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+tahap 6
+
+interface g0/0						//Agar router dapat dijangkau, antarmuka router harus dikonfigurasi.
+ip address 192.168.1.126 255.255.255.224
+description First Floor LAN				//is meant to provide a reminder in the configuration to describe what certain interfaces are used for. The description appears in the output of the following commands such as show interface and show running-config .
+ipv6 address 2001:DB8:ACAD:A::1/64
+ipv6 address fe80::1 link-local
+no shutdown						//mengaktifkan port interface, Perintah ini harus digunakan dalam mode konfigurasi antarmuka. Ini berguna untuk antarmuka baru dan untuk pemecahan masalah. Saat Anda mengalami masalah dengan antarmuka, Anda mungkin ingin mencoba menutup dan tidak menutup.
+exit
+
+interface g0/1
+ip address 192.168.1.158 255.255.255.240
+description Second Floor LAN
+ipv6 address 2001:DB8:ACAD:B::1/64
+ipv6 address fe80::1 link-local
+no shutdown
+exit
+ipv6 unicast-routing					//perintahnya secara global mengaktifkan IPv6 dan harus menjadi perintah pertama yang dijalankan di router. mengkonfigurasi alamat unicast global IPv6 pada antarmuka menggunakan perintah alamat ipv6 alamat / prefix-length [eui-64].
+exit
+write

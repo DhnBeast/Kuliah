@@ -1,0 +1,34 @@
+tahap 1
+
+enable						//untuk memasuki mode user
+conf terminal					//masuk ketingkat lebih tinggi(global)
+enable secret class12345			//menentukan pass buat mode privileged atau user
+service password-encryption			//mengubah password agar tidak dapat dibaca untuk mode user 
+banner motd $Second Floor Switch$		//memberikan sebuah identitas,keterangan,pada saat awal masuk
+no ip domain-lookup				//digunakan untuk mencegah router mencoba menyelesaikan perintah yang ditempelkan secara tidak benar di cli dengan mengirimkan kueri DNS
+---------------------------------------------------------------------------------------------------------------
+tahap 2
+
+line console 0 					//menghubungkan router konsol menengah.jika hanya ada satu port konsole maka pilihlah console 0
+password cisco12345			 	//memberikan password pada line console
+login 					 	//Mengaktifkan otentikasi untuk koneksi terminal virtual ke router.
+logging synchronous			 	//Tindakan ini mencegah pesan yang tidak diminta dan keluaran debug diselingi dengan keluaran dan petunjuk perangkat lunak yang diminta.
+exec-timeout 60				 	//adalah jumlah waktu dari konsol atau sesi telnet ke router yang memungkinkan lalu lintas oleh router. Setelah waktu tercapai itu akan memutuskan koneksi.
+exit
+---------------------------------------------------------------------------------------------------------------
+tahap 3
+
+line vty 0 15					//menghubungkan router ke telnet
+password cisco12345
+login
+logging synchronous
+exec-timeout 60
+exit
+
+interface vlan 1
+ip address 192.168.1.157 255.255.255.240
+no shutdown
+
+ip default-gateway 192.168.1.158
+exit
+write
